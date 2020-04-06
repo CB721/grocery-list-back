@@ -31,7 +31,7 @@ module.exports = function (password, email, username) {
                         Password: ${$password}
                     </div>
                 </div>
-                <a href="https://grocery-list-cb.herokuapp.com/login" class="invite-button" style="height: 10vh;line-height: 10vh;font-size: 7vh;display: block;width: 96%;text-align: center;border-radius: 8px;margin: 2%;color: #F9FCFF;background: #3C91E6;text-transform: capitalize;text-decoration: none;transition: 0.3s;">
+                <a href="https://g-list-cb.herokuapp.com/login" class="invite-button" style="height: 10vh;line-height: 10vh;font-size: 7vh;display: block;width: 96%;text-align: center;border-radius: 8px;margin: 2%;color: #F9FCFF;background: #3C91E6;text-transform: capitalize;text-decoration: none;transition: 0.3s;">
                     Join
                 </a>
             </div>
