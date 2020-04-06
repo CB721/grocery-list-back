@@ -227,7 +227,7 @@ module.exports = {
         }
         let updateMongo = function (results) {
             // only email can be updated in mongo
-            if (has) {
+            if (hasEmail) {
                 User
                     .findOneAndUpdate({ _id: id }, { $set: { email: update.email } })
                     .then(() => {
