@@ -28,7 +28,7 @@ module.exports = function (password, email, username) {
                         Email: ${email}
                     </div>
                     <div class="password" style="height: auto;width: 96%;margin: 0 auto;text-align: center;font-size: 24px;line-height: 24px;padding: 2%;color: #2F3338;">
-                        Password: ${$password}
+                        Password: ${password}
                     </div>
                 </div>
                 <a href="https://g-list-cb.herokuapp.com/login" class="invite-button" style="height: 10vh;line-height: 10vh;font-size: 7vh;display: block;width: 96%;text-align: center;border-radius: 8px;margin: 2%;color: #F9FCFF;background: #3C91E6;text-transform: capitalize;text-decoration: none;transition: 0.3s;">

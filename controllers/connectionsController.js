@@ -206,7 +206,9 @@ module.exports = {
                             return res.status(500).send(err);
                         });
                 })
-                .catch(err => res.status(422).json(err));
+                .catch(err => {
+                    res.status(422).json(err);
+                });
         }
         // create user in sql
         let createUserSQL = function (pass, identity) {
@@ -264,6 +266,7 @@ module.exports = {
         }
         // create connection row
         function createConnection(requestedID) {
+            console.log(requestedID, ID)
             sqlDB
                 .query(`INSERT INTO ${connectTable} (requestor_id, requested_id, date_added) VALUES (${ID}, '${requestedID}', NOW());`,
                     function (err, results) {

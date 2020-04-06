@@ -163,7 +163,6 @@ module.exports = {
         // expecting the column name and value to be updated
         const update = req.body;
         let id = req.params.id;
-
         let query = `UPDATE ${table} SET`;
         let hasEmail = false;
         let email = update.email;
@@ -198,19 +197,8 @@ module.exports = {
                     .catch(err => console.log(err));
             });
         }
-        if (hasEmail) {
-            checkIfEmailExists()
-                .then(() => {
-                    updateUserSQL();
-                })
-                .catch(err => {
-                    return res.status(409).send(err);
-                });
-        } else {
-            updateUserSQL();
-        }
 
-        function updateUserSQL() {
+        let updateUserSQL = function () {
             // remove last comma and space from query string
             query = query.substring(0, query.length - 2);
             query += ` WHERE id = ${sqlDB.escape(id)};`;
@@ -221,22 +209,33 @@ module.exports = {
                         if (err) {
                             return res.status(422).send(err);
                         } else {
-                            updateMongo(hasEmail, results);
+                            updateMongo();
                         }
                     });
         }
-        let updateMongo = function (results) {
+        let updateMongo = function () {
             // only email can be updated in mongo
             if (hasEmail) {
                 User
                     .findOneAndUpdate({ _id: id }, { $set: { email: update.email } })
                     .then(() => {
-                        return res.status(200).json(results)
+                        return res.status(200).json("success")
                     })
                     .catch(err => res.status(422).json(err));
             } else {
-                return res.status(200).json(results);
+                return res.status(200).json("success");
             }
+        }
+        if (hasEmail) {
+            checkIfEmailExists()
+                .then(() => {
+                    updateUserSQL();
+                })
+                .catch(err => {
+                    return res.status(409).send(err);
+                });
+        } else {
+            updateUserSQL();
         }
     },
     getUserByEmail: function (req, res) {
