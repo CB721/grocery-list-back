@@ -16,8 +16,12 @@ sessionToken =
 module.exports = {
     getUserPlace: function (req, res) {
         const search = req.body.search;
+        let query = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${search}&key=${process.env.PLACES}&types=establishment&sessiontoken=${sessionToken}`;
+        if (req.body.coords) {
+            query += `&location=${req.body.coords}`;
+        }
         // place autocomplete
-        axios.get(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${search}&key=${process.env.PLACES}&types=establishment&sessiontoken=${sessionToken}`)
+        axios.get(query)
             .then(response => {
                 const places = response.data.predictions;
                 const results = [];
