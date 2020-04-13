@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const table = "users";
 const notificationsTable = "notifications";
+const userStoreTable = "user_stores";
 const { isEmail } = require("validator");
 const { corbato } = require("../utilities/hashPass");
 
@@ -114,7 +115,8 @@ module.exports = {
                         if (err) {
                             return res.status(422).send(err);
                         } else {
-                            newUserNotification(id)
+                            newUserNotification(id);
+                            addDefaultStore(id);
                             return res.status(200).json(results);
                         }
                     });
@@ -126,7 +128,17 @@ module.exports = {
                         if (err) {
                             console.log(err);
                         }
-                    })
+                    });
+        }
+        function addDefaultStore(user_id) {
+            let columns = "(store_id, user_id)";
+            sqlDB
+                .query(`INSERT INTO ${userStoreTable} ${columns} VALUES('1', ${user_id});`,
+                    function (err) {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
         }
     },
     deleteUser: function (req, res) {

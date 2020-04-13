@@ -121,10 +121,10 @@ module.exports = {
                 action_trigger: `connection request: ${request}`
             })
                 .then(() => {
-                    return res.status(400).json(err);
+                    return res.status(400).json("Invalid email");
                 })
                 .catch(() => {
-                    return res.status(404).json(err);
+                    return res.status(404).json("Invalid email");
                 });
             return res.status(406).send("Invalid email");
         }
