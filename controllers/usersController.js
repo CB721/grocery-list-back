@@ -178,11 +178,12 @@ module.exports = {
         let query = `UPDATE ${table} SET`;
         let hasEmail = false;
         let email = update.email;
+        // console.log(update);
         for (const column in update) {
-            if (update[column] !== "null") {
+            if (update[column] !== "null" || update[column] !== null) {
                 // prevent injection and add column/value to query string
-                if (column === "last_visit") {
-                    query += `${column} = NOW(), `;
+                if (column === "last_visit" || column === "last_pwa_prompt") {
+                    query += ` ${column} = NOW(), `;
                 } else {
                     query += ` ${column} = ${sqlDB.escape(update[column])}, `;
                 }
