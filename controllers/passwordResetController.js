@@ -111,7 +111,7 @@ module.exports = {
                     function (err, results) {
                         if (err) {
                             return res.status(500).send(err);
-                        } else if (results[0].length > 0) {
+                        } else if (results[0].length) {
                             if (parseInt(results[0][0].time_difference.split(":")[0]) < 24) {
                                 // if it matches, check that temp pass matches
                                 bcrypt.compare(req.body.temp, results[0][0].temp_password)

@@ -115,9 +115,41 @@ module.exports = {
             let textQuery = `INSERT INTO ${textTable}(number, code, date_requested, user_id) `;
             textQuery += `VALUES('${phone}', '${hashedCode}', NOW(), '${id}');`;
             sqlDB.query(textQuery,
-                function(err) {
+                function (err) {
                     if (err) throw err;
                 });
         }
+    },
+    validateCode: function (req, res) {
+        // prevent injections
+        const id = sqlDB.escape(req.body.id);
+        sqlDB
+            .query(`SELECT TIMEDIFF(NOW(), date_requested) AS time_since_last_request, code FROM ${textTable} WHERE user_id = ${id} ORDER BY date_requested DESC;`,
+                function (err, results) {
+                    if (err) {
+                        return res.status(500).json(err);
+                    } else if (results.length) {
+                        const timeDifference = parseInt(results[0].time_since_last_request.split(":")[1]);
+                        if (timeDifference <= 60) {
+                            bcrypt.compare(req.body.code, results[0].code)
+                                .then(match => {
+                                    if (match) {
+                                        // if it does match
+                                        return res.status(200).send("success");
+                                    } else {
+                                        // if it doesn't match, send error
+                                        return res.status(400).send("Incorrect code");
+                                    }
+                                })
+                                .catch(err => {
+                                    return res.status(500).send(err);
+                                });
+                        } else {
+                            return res.status(429).send("That code has expired");
+                        }
+                    } else {
+                        return res.status(404).send("No text code found");
+                    }
+                });
     }
 }
