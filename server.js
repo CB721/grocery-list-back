@@ -9,10 +9,19 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(cors({
-  origin: ["https://g-list-cb.herokuapp.com"],
+  origin: ["https://g-list-cb.herokuapp.com", "http://localhost:3000"],
   credentials: true
 }));
-app.use(session({ secret: process.env.sessionSecret, resave: true, saveUninitialized: true, cookie: { maxAge: 7200000 } }));
+app.use(session(
+  {
+    secret: process.env.sessionSecret,
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 14000000
+    }
+  }
+));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

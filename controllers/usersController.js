@@ -326,6 +326,11 @@ module.exports = {
                             return res.status(500).send(err);
                         } else {
                             checkPWA(results);
+                            req.session.user = {
+                                id: results[0].id,
+                                email: results[0].email,
+                                user_auth: results[0].user_auth
+                            };
                             return res.status(200).json(results);
                         }
                     });
@@ -360,6 +365,11 @@ module.exports = {
                                                     user_auth: results[0][0].user_auth,
                                                     id: results[0][0].id
                                                 }]
+                                                req.session.user = {
+                                                    id: results[0][0].id,
+                                                    email: results[0][0].email,
+                                                    user_auth: results[0][0].user_auth
+                                                };
                                                 return res.status(200).json(data);
                                             }
                                         })

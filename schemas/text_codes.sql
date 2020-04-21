@@ -2,7 +2,7 @@ CREATE TABLE text_codes
 (
 	id INT NOT NULL AUTO_INCREMENT
     , number VARCHAR(15)
-    , code CHAR(6)
+    , code VARCHAR(75)
     , date_requested TIMESTAMP
     , user_id VARCHAR(100)
     , PRIMARY KEY(id)

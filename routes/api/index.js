@@ -8,6 +8,7 @@ const notifications = require("./notifications");
 const connections = require("./connections");
 const passResets = require("./passwordReset");
 const issues = require("./issues");
+const textCodes = require("./textCodes");
 
 router.use("/places", places);
 router.use("/users", users);
@@ -17,6 +18,7 @@ router.use("/notifications", notifications);
 router.use("/connections", connections);
 router.use("/resets", passResets);
 router.use("/issues", issues);
+router.use("/texts", textCodes);
 
 router.use(function (req, res) {
     res.sendFile(path.join(__dirname, "../../client/public/index.html"));
