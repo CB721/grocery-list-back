@@ -318,7 +318,7 @@ module.exports = {
         }
         function sendCompleteUser() {
             // only select certain columns, hashed password will not be used by the front end
-            const columns = "id, first_name, last_name, email, last_visit, joined, user_auth, using_PWA, TIMEDIFF(NOW(), last_pwa_prompt) AS last_pwa_prompt_diff";
+            const columns = "id, first_name, last_name, email, last_visit, phone, joined, user_auth, using_PWA, TIMEDIFF(NOW(), last_pwa_prompt) AS last_pwa_prompt_diff";
             sqlDB
                 .query(`SELECT ${columns} FROM ${table} WHERE email = ${userEmail};`,
                     function (err, results) {
