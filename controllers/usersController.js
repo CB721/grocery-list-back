@@ -255,6 +255,12 @@ module.exports = {
         // prevent injectsions
         const userEmail = sqlDB.escape(req.body.email);
         const ip = sqlDB.escape(req.body.ip);
+        const userCurrTime = parseInt(
+            sqlDB
+                .escape(req.body.time.split(" ")[4])
+                .split(":")[0]
+                .split("'")[1]
+        );
         // password does not go into db and is just compared to what is stored
         const password = req.body.password;
         sqlDB.query(`SELECT * FROM ${table} WHERE email = ${userEmail};`,
@@ -289,15 +295,37 @@ module.exports = {
                     }
                 }
             });
+        function checkPWA(userData) {
+            const isValidTime = userCurrTime >= 12 && userCurrTime < 19;
+            const lastPromptDiff = parseInt(userData[0].last_pwa_prompt_diff.split(":")[0]);
+            // if the user is not using the pwa and 
+            // it has been greater than 60 days since they were last prompted
+            // and the user's current time is between noon and 6pm 
+            if (!userData[0].using_PWA && lastPromptDiff > 5 && isValidTime) {
+                // insert new notification
+                let pwaNotificationQuery = `INSERT INTO ${notificationsTable}(content, date_added, user_id) VALUES("Save G-List to your home page for better performance!", NOW(), '${userData[0].id}');`;
+                sqlDB.query(pwaNotificationQuery,
+                    function (err) {
+                        if (err) throw err;
+                    });
+                let userUpdateQuery = `UPDATE ${table} SET last_pwa_prompt = NOW() WHERE id = '${userData[0].id}';`;
+                // update last prompt column to current time
+                sqlDB.query(userUpdateQuery,
+                    function (err) {
+                        if (err) throw err;
+                    });
+            }
+        }
         function sendCompleteUser() {
             // only select certain columns, hashed password will not be used by the front end
-            const columns = "id, first_name, last_name, email, last_visit, joined, user_auth";
+            const columns = "id, first_name, last_name, email, last_visit, joined, user_auth, using_PWA, TIMEDIFF(NOW(), last_pwa_prompt) AS last_pwa_prompt_diff";
             sqlDB
                 .query(`SELECT ${columns} FROM ${table} WHERE email = ${userEmail};`,
                     function (err, results) {
                         if (err) {
                             return res.status(500).send(err);
                         } else {
+                            checkPWA(results);
                             return res.status(200).json(results);
                         }
                     });
