@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(cors({
-  origin: ["https://g-list-cb.herokuapp.com"],
+  origin: ["https://g-list-cb.herokuapp.com", "http://localhost:3000"],
   credentials: true
 }));
 app.use(session(

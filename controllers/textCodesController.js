@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 
 module.exports = {
     createReset: function (req, res) {
-        let { user_id, number } = req.body;
+        let { number } = req.body;
         // check that the number is valid
         if (number.length < 10 || number.length > 15) {
             return res.status(400).send("Invalid phone number.  Must be 10 numbers.");
@@ -26,7 +26,6 @@ module.exports = {
             }
         }
         // prevent injections
-        user_id = sqlDB.escape(user_id);
         number = sqlDB.escape(number);
         const carrier = sqlDB.escape(req.body.carrier);
         // check for valid carrier
@@ -34,13 +33,15 @@ module.exports = {
             return res.status(400).send("Invalid phone carrier");
         }
         // check if user exists with the corresponding number
-        const checkUserQuery = `SELECT id, phone FROM ${userTable} WHERE id = ${user_id} AND phone = ${number};`;
+        const checkUserQuery = `SELECT id, phone FROM ${userTable} WHERE phone = ${number};`;
         sqlDB.query(checkUserQuery,
             function (err, results) {
                 if (err) {
-                    return res.status(500).send(err);
-                } else {
+                    return res.status(500).json(err);
+                } else if (results.length) {
                     checkRecentTextCode(results[0].id, results[0].phone);
+                } else {
+                    return res.status(404).send("Phone number not found");
                 }
             });
         function checkRecentTextCode(id, phone) {
@@ -54,7 +55,7 @@ module.exports = {
                             // get the time difference since the last request
                             const timeDifference = parseInt(results[0].time_since_last_request.split(":")[1]);
                             // only send a code if it has been at least 15 minutes since their last request
-                            if (timeDifference < 3) {
+                            if (timeDifference < 15) {
                                 return res.status(400).send("A code has already been sent to the number on file.");
                             }
                         }
@@ -122,15 +123,16 @@ module.exports = {
     },
     validateCode: function (req, res) {
         // prevent injections
-        const id = sqlDB.escape(req.body.id);
+        const number = sqlDB.escape(req.body.number);
+        // select all that have matching number and have been requested in the last 15 minutes
         sqlDB
-            .query(`SELECT TIMEDIFF(NOW(), date_requested) AS time_since_last_request, code FROM ${textTable} WHERE user_id = ${id} ORDER BY date_requested DESC;`,
+            .query(`SELECT TIMEDIFF(NOW(), date_requested) AS time_since_last_request, code FROM ${textTable} WHERE number = ${number} AND TIMEDIFF(NOW(), date_requested) < '00:15:01' ORDER BY date_requested DESC;`,
                 function (err, results) {
                     if (err) {
                         return res.status(500).json(err);
                     } else if (results.length) {
                         const timeDifference = parseInt(results[0].time_since_last_request.split(":")[1]);
-                        if (timeDifference <= 60) {
+                        if (timeDifference <= 15) {
                             bcrypt.compare(req.body.code, results[0].code)
                                 .then(match => {
                                     if (match) {
@@ -148,7 +150,7 @@ module.exports = {
                             return res.status(429).send("That code has expired");
                         }
                     } else {
-                        return res.status(404).send("No text code found");
+                        return res.status(404).send("No recent text code found");
                     }
                 });
     }
