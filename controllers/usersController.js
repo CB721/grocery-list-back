@@ -174,13 +174,14 @@ module.exports = {
     updateUser: function (req, res) {
         // expecting the column name and value to be updated
         const update = req.body;
+        console.log(req.body)
         let id = req.params.id;
         let query = `UPDATE ${table} SET`;
         let hasEmail = false;
         let email = update.email;
-        // console.log(update);
         for (const column in update) {
-            if (update[column] !== "null" || update[column] !== null) {
+            console.log(column);
+            if ((update[column] !== "null" || update[column] !== null) && column !== "user_password") {
                 // prevent injection and add column/value to query string
                 if (column === "last_visit" || column === "last_pwa_prompt") {
                     query += ` ${column} = NOW(), `;
@@ -214,17 +215,37 @@ module.exports = {
         let updateUserSQL = function () {
             // remove last comma and space from query string
             query = query.substring(0, query.length - 2);
-            query += ` WHERE id = ${sqlDB.escape(id)};`;
-            // all fields can be updated in sql
-            sqlDB
-                .query(query,
-                    function (err, results) {
-                        if (err) {
-                            return res.status(422).send(err);
-                        } else {
-                            updateMongo();
-                        }
+            // hash the user password update
+            if (update["user_password"]) {
+                corbato(update["user_password"])
+                    .then(hash => {
+                        query += `ET user_password = ${sqlDB.escape(hash)}`;
+                        query += ` WHERE id = ${sqlDB.escape(id)};`;
+                        // all fields can be updated in sql
+                        sqlDB
+                            .query(query,
+                                function (err, results) {
+                                    if (err) {
+                                        return res.status(500).send(err);
+                                    } else {
+                                        updateMongo();
+                                    }
+                                });
                     });
+            } else {
+                query += ` WHERE id = ${sqlDB.escape(id)};`;
+                console.log(query);
+                // all fields can be updated in sql
+                sqlDB
+                    .query(query,
+                        function (err, results) {
+                            if (err) {
+                                return res.status(500).send(err);
+                            } else {
+                                updateMongo();
+                            }
+                        });
+            }
         }
         let updateMongo = function () {
             // only email can be updated in mongo
@@ -326,6 +347,7 @@ module.exports = {
                             return res.status(500).send(err);
                         } else {
                             checkPWA(results);
+                            // set user info to session object
                             req.session.user = {
                                 id: results[0].id,
                                 email: results[0].email,
