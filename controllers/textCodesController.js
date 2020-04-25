@@ -155,15 +155,23 @@ module.exports = {
                     }
                 });
         function updatePass(id) {
-            const updateQuery = `UPDATE ${userTable} SET user_password = ${newPass} WHERE id = '${id}';`;
-            sqlDB.query(updateQuery,
-                function (err) {
-                    if (err) {
-                        return res.status(500).json(err);
-                    } else {
-                        return res.status(200).send("success");
-                    }
+            // encrypt new password from the user
+            corbato(newPass)
+                .then(hash => {
+                    // update created user with new password and name
+                    const updateQuery = `UPDATE ${userTable} SET user_password = ${hash} WHERE id = '${id}';`;
+                    sqlDB.query(updateQuery,
+                        function (err) {
+                            if (err) {
+                                return res.status(500).json(err);
+                            } else {
+                                return res.status(200).send("success");
+                            }
+                        });
                 })
+                .catch(err => {
+                    return res.status(500).json(err);
+                });
         }
     }
 }
