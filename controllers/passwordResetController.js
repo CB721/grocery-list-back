@@ -87,7 +87,7 @@ module.exports = {
                     if (info.rejected.length > 0) {
                         return res.status(403).send("Email blocked");
                     } else {
-                        return res.status(200).send("Password reset sent");
+                        return res.status(200).send("Password reset sent to your email");
                     }
             });
         }

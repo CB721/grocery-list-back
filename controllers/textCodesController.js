@@ -124,9 +124,10 @@ module.exports = {
     validateCode: function (req, res) {
         // prevent injections
         const number = sqlDB.escape(req.body.number);
+        const newPass = sqlDB.escape(req.body.password);
         // select all that have matching number and have been requested in the last 15 minutes
         sqlDB
-            .query(`SELECT TIMEDIFF(NOW(), date_requested) AS time_since_last_request, code FROM ${textTable} WHERE number = ${number} AND TIMEDIFF(NOW(), date_requested) < '00:15:01' ORDER BY date_requested DESC;`,
+            .query(`SELECT TIMEDIFF(NOW(), date_requested) AS time_since_last_request, code, user_id FROM ${textTable} WHERE number = ${number} AND TIMEDIFF(NOW(), date_requested) < '00:15:01' ORDER BY date_requested DESC;`,
                 function (err, results) {
                     if (err) {
                         return res.status(500).json(err);
@@ -136,8 +137,8 @@ module.exports = {
                             bcrypt.compare(req.body.code, results[0].code)
                                 .then(match => {
                                     if (match) {
-                                        // if it does match
-                                        return res.status(200).send("success");
+                                        // if it does match, update the password
+                                        updatePass(results[0].user_id);
                                     } else {
                                         // if it doesn't match, send error
                                         return res.status(400).send("Incorrect code");
@@ -153,5 +154,16 @@ module.exports = {
                         return res.status(404).send("No recent text code found");
                     }
                 });
+        function updatePass(id) {
+            const updateQuery = `UPDATE ${userTable} SET user_password = ${newPass} WHERE id = '${id}';`;
+            sqlDB.query(updateQuery,
+                function (err) {
+                    if (err) {
+                        return res.status(500).json(err);
+                    } else {
+                        return res.status(200).send("success");
+                    }
+                })
+        }
     }
 }

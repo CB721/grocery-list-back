@@ -9,12 +9,13 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(cors({
-  origin: ["https://g-list-cb.herokuapp.com", "http://localhost:3000"],
+  origin: ["https://g-list-cb.herokuapp.com"],
   credentials: true
 }));
 app.use(session(
   {
     secret: process.env.sessionSecret,
+    // store: new SequelizeStore
     resave: true,
     saveUninitialized: true,
     cookie: {
