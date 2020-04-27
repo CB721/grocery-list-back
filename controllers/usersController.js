@@ -281,38 +281,43 @@ module.exports = {
         );
         // password does not go into db and is just compared to what is stored
         const password = req.body.password;
-        sqlDB.query(`SELECT * FROM ${table} WHERE email = ${userEmail};`,
-            function (err, results) {
-                if (err) {
-                    return res.status(500).send(err);
-                } else {
-                    if (results.length > 0) {
-                        bcrypt.compare(password, results[0].user_password)
-                            .then(
-                                match => {
-                                    if (match) {
-                                        const token = `'${crypto.randomBytes(64).toString('hex')}'`;
-                                        // reset user auth token, set last visit to current date, update ip address
-                                        sqlDB.query(`UPDATE ${table} SET user_auth = ${token}, last_visit = NOW(), ip_address = ${ip} WHERE id = '${results[0].id}';`,
-                                            function (err, tokenUpdate) {
-                                                if (err) {
-                                                    return res.status(502).send(err);
-                                                } else if (tokenUpdate.affectedRows == 1) {
-                                                    sendCompleteUser();
-                                                }
-                                            }
-                                        )
-                                    } else {
-                                        return res.status(404).send("Password does not match");
-                                    }
-                                }
-                            )
-                            .catch(err => res.status(500).send(err));
+        // if the user is already saved to the session, automatically send the complete user
+        if (req.session.user) {
+            sendCompleteUser();
+        } else {
+            sqlDB.query(`SELECT * FROM ${table} WHERE email = ${userEmail};`,
+                function (err, results) {
+                    if (err) {
+                        return res.status(500).send(err);
                     } else {
-                        return res.status(404).send("Account not found");
+                        if (results.length > 0) {
+                            bcrypt.compare(password, results[0].user_password)
+                                .then(
+                                    match => {
+                                        if (match) {
+                                            const token = `'${crypto.randomBytes(64).toString('hex')}'`;
+                                            // reset user auth token, set last visit to current date, update ip address
+                                            sqlDB.query(`UPDATE ${table} SET user_auth = ${token}, last_visit = NOW(), ip_address = ${ip} WHERE id = '${results[0].id}';`,
+                                                function (err, tokenUpdate) {
+                                                    if (err) {
+                                                        return res.status(502).send(err);
+                                                    } else if (tokenUpdate.affectedRows == 1) {
+                                                        sendCompleteUser();
+                                                    }
+                                                }
+                                            )
+                                        } else {
+                                            return res.status(404).send("Password does not match");
+                                        }
+                                    }
+                                )
+                                .catch(err => res.status(500).send(err));
+                        } else {
+                            return res.status(404).send("Account not found");
+                        }
                     }
-                }
-            });
+                });
+        }
         function checkPWA(userData) {
             const isValidTime = userCurrTime >= 12 && userCurrTime < 19;
             const lastPromptDiff = parseInt(userData[0].last_pwa_prompt_diff.split(":")[0]);
@@ -419,5 +424,13 @@ module.exports = {
                 })
                 .catch(err => console.log(err));
         }
+    },
+    logout: function (req, res) {
+        req.session.destroy(err => {
+            if (err) throw err;
+            else {
+                return res.status(200).send("logged out");
+            }
+        });
     }
 }

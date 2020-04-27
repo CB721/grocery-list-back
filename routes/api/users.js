@@ -17,5 +17,8 @@ router
 router
     .route("/verify/:token/:ip")
     .get(controller.verifyUser);
+router
+    .route("/logout")
+    .get(controller.logout);
 
 module.exports = router;

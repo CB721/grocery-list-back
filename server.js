@@ -42,6 +42,8 @@ mongoose
   });
 mongoose.set('useFindAndModify', false);
 
-app.listen(PORT, () => {
-  console.log(`API server is on port ${PORT}`);
+db.sequelize.sync({ force: false }).then(function () {
+  app.listen(PORT, () => {
+    console.log(`API server is on port ${PORT}`);
+  });
 });
