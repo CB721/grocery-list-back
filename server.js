@@ -7,15 +7,19 @@ const mongoose = require('mongoose');
 const routes = require("./routes");
 const PORT = process.env.PORT || 3001;
 const app = express();
+const db = require("./models");
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 app.use(cors({
-  origin: ["https://g-list-cb.herokuapp.com"],
+  origin: ["https://g-list-cb.herokuapp.com", "http://localhost:3000"],
   credentials: true
 }));
 app.use(session(
   {
     secret: process.env.sessionSecret,
-    // store: new SequelizeStore
+    store: new SequelizeStore({
+      db: db.sequelize
+    }),
     resave: true,
     saveUninitialized: true,
     cookie: {

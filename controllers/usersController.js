@@ -174,13 +174,11 @@ module.exports = {
     updateUser: function (req, res) {
         // expecting the column name and value to be updated
         const update = req.body;
-        console.log(req.body)
         let id = req.params.id;
         let query = `UPDATE ${table} SET`;
         let hasEmail = false;
         let email = update.email;
         for (const column in update) {
-            console.log(column);
             if ((update[column] !== "null" || update[column] !== null) && column !== "user_password") {
                 // prevent injection and add column/value to query string
                 if (column === "last_visit" || column === "last_pwa_prompt") {
@@ -234,7 +232,6 @@ module.exports = {
                     });
             } else {
                 query += ` WHERE id = ${sqlDB.escape(id)};`;
-                console.log(query);
                 // all fields can be updated in sql
                 sqlDB
                     .query(query,
