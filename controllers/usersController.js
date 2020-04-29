@@ -387,7 +387,8 @@ module.exports = {
                                                     joined: results[0][0].joined,
                                                     time_difference: results[0][0].time_difference,
                                                     user_auth: results[0][0].user_auth,
-                                                    id: results[0][0].id
+                                                    id: results[0][0].id,
+                                                    using_PWA: results[0][0].using_PWA
                                                 }]
                                                 req.session.user = {
                                                     id: results[0][0].id,

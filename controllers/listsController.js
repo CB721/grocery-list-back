@@ -2,6 +2,7 @@ const sqlDB = require("../sql_connection");
 const listTable = "lists";
 const listItemsTable = "list_items";
 const notificationsTable = "notifications";
+const datamuse = require("datamuse");
 
 module.exports = {
     addItem: function (req, res) {
@@ -303,5 +304,80 @@ module.exports = {
                         return res.status(200).json(results[0]);
                     }
                 });
+    },
+    itemSuggestion: function (req, res) {
+        // ensure user is signed in
+        if (!req.session.user) {
+            return res.status(401).send("Sign in to continue");
+        }
+        // only search when the search term is at least 4 characters
+        if (req.body.search.length < 4) {
+            return res.status(204).send("Invalid length");
+        }
+        // prevent injections and add place wildcard for sql like operator
+        const search = sqlDB.escape(`${req.body.search}%`);
+        const ID = sqlDB.escape(req.session.user.id);
+        // results array
+        let suggestions = [];
+        // first search the user's items
+        sqlDB.query(`CALL search_user_items(${search}, ${ID})`,
+            function (err, results) {
+                if (err) {
+                    return res.status(500).json(err);
+                } else {
+                    filterDuplicates(results[0]);
+                }
+            });
+        function searchAllItems() {
+            // search for all items that are not assigned to the user
+            sqlDB.query(`CALL search_all_items(${search}, ${ID})`,
+                function (err, results) {
+                    if (err) {
+                        return res.status(500).json(err);
+                    } else {
+                        searchedAll = true;
+                        filterDuplicates(results[0]);
+                    }
+                });
+        }
+        // set boolean to determine if all items have been searched yet
+        let searchedAll = false;
+        function filterDuplicates(items) {
+            for (let i = 0; i < items.length; i++) {
+                // lowercase name value
+                let name = items[i].name.toLowerCase();
+                // check if it is already in the suggestions array
+                if (suggestions.indexOf(name) < 0) {
+                    suggestions.push(name);
+                }
+            }
+            // if the suggestions are less than 5 and all items haven't been searched yet
+            if (suggestions.length < 5 && !searchedAll) {
+                searchAllItems();
+                // if the suggestions are still less than 5 after search all items
+                // send request to datamuse api
+            } else if (suggestions.length < 5) {
+                // word suggestion api
+                datamuse.sug({
+                    s: search
+                })
+                    .then(results => {
+                        const outputArr = [...suggestions];
+                        for (let i = 0; i < results.length; i++) {
+                            // if the output array has reached 5
+                            if (outputArr.length >= 5) {
+                                break;
+                            }
+                            let name = results[i].word.toLowerCase();
+                            // if the suggestion has not already been added to the output array
+                            if (outputArr.indexOf(name) < 0) {
+                                outputArr.push(name);
+                            }
+                        }
+                        return res.status(200).json(outputArr);
+                    })
+                    .catch(err => res.status(500).json(err));
+            }
+        }
     }
 }

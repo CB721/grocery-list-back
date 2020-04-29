@@ -29,5 +29,8 @@ router
 router
     .route("/multiple/:userid/:otheruserid")
     .get(controller.getSentLists);
+router
+    .route("/suggest")
+    .post(controller.itemSuggestion);
 
 module.exports = router;
