@@ -315,7 +315,7 @@ module.exports = {
             return res.status(204).send("Invalid length");
         }
         // prevent injections and add place wildcard for sql like operator
-        const search = sqlDB.escape(`${req.body.search}%`);
+        const search = sqlDB.escape(`*${req.body.search}*`);
         const ID = sqlDB.escape(req.session.user.id);
         // results array
         let suggestions = [];

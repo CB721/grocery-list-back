@@ -13,21 +13,19 @@ CREATE TABLE list_items
 );
 
 CREATE PROCEDURE search_user_items(IN search VARCHAR(255), ID VARCHAR(255))
-SELECT DISTINCT
-list_items.name
-FROM list_items 
+SELECT DISTINCT name
+FROM list_items
 INNER JOIN  lists ON list_items.list_id = lists.id
-WHERE name LIKE search
+WHERE MATCH(name) AGAINST(search IN BOOLEAN MODE)
 AND user_id = ID
-GROUP BY name
+ORDER BY name
 LIMIT 5;
 
 CREATE PROCEDURE search_all_items(IN search VARCHAR(255), ID VARCHAR(255))
-SELECT DISTINCT
-list_items.name
-FROM list_items 
+SELECT DISTINCT name
+FROM list_items
 INNER JOIN  lists ON list_items.list_id = lists.id
-WHERE name LIKE search
+WHERE MATCH(name) AGAINST(search IN BOOLEAN MODE)
 AND user_id <> ID
-GROUP BY name
+ORDER BY name
 LIMIT 5;
