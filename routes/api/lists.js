@@ -32,5 +32,8 @@ router
 router
     .route("/suggest")
     .post(controller.itemSuggestion);
+router
+    .route("/bulk")
+    .post(controller.addBulkItems);
 
 module.exports = router;

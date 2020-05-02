@@ -379,5 +379,83 @@ module.exports = {
                     .catch(err => res.status(500).json(err));
             }
         }
+    },
+    addBulkItems: function (req, res) {
+        // only allow authenicated users to proceed
+        if (!req.session.user || !req.session.user.id) {
+            return res.status(401).send("Login to proceed");
+        }
+        const user_id = req.session.user.id;
+        // expecting an array for items
+        const newItems = JSON.parse(req.body.items);
+        // check first item for list id
+        // since this will be the first item added while offline, if it has a list id, the rest will use that id
+        // will update this value if a new list needs to be created
+        let existingListID = newItems[0].list_id;
+        // if list id doesn't exist
+        if (!existingListID && typeof (existingListID) !== "number") {
+            // check if a list does actually currently exist
+            sqlDB
+                .query(`SELECT * FROM ${listTable} WHERE user_id = ${user_id} AND lists.completed = false;`,
+                    function (err, results) {
+                        if (err) {
+                            return res.status(500).send(err);
+                        } else {
+                            if (results.length < 1) {
+                                // if it doesn't create new list
+                                createList();
+                            }
+                            // if it doesn't create new list
+                            if (results.completed > 0 || results.length < 1) {
+                                createList();
+                            } else {
+                                // if it does, update existing list id
+                                existingListID = results[0].id;
+                            }
+                        }
+                    });
+        } else {
+            // if an id does exist, move on to add items
+            addItems();
+        }
+        function createList() {
+            const columns = "(date_added, user_id)"
+            sqlDB
+                .query(`INSERT INTO ${listTable} ${columns} VALUES (NOW(), ${user_id});`,
+                    function (err, result) {
+                        if (err) {
+                            return res.status(422).send(err);
+                        } else {
+                            // update list id to newly created list id
+                            existingListID = result.insertId;
+                            addItems();
+                        }
+                    });
+        }
+        function addItems() {
+            // string for adding to query to add all items to a list
+            const columns = "(date_added, list_id, name, store_id, position, priority)";
+            let queryStr = `INSERT INTO ${listItemsTable} ${columns} VALUES`;
+            // iterate over each item
+            for (let i = 0; i < newItems.length; i++) {
+                // prevent injections on each field
+                let singleItem = `(NOW(), ${existingListID}, ${sqlDB.escape(newItems[i].name)}, ${sqlDB.escape(newItems[i].store_id)}, ${sqlDB.escape(newItems[i].position)}, ${sqlDB.escape(newItems[i].priority)}), `;
+                // add to query
+                queryStr += singleItem;
+            }
+            // remove last comma and space from string
+            queryStr = queryStr.substring(0, queryStr.length - 2);
+            // add semicolon to string
+            queryStr += ";";
+            // add items to existing or new list
+            sqlDB.query(queryStr,
+                function(err, results) {
+                    if (err) {
+                        return res.status(500).json(err);
+                    } else {
+                        return res.status(201).json(results);
+                    }
+                })
+        }
     }
 }
