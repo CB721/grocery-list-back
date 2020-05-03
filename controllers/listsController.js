@@ -385,32 +385,42 @@ module.exports = {
         if (!req.session.user || !req.session.user.id) {
             return res.status(401).send("Login to proceed");
         }
+        const rightNow = Date.now();
+        // if there is lastListBulkAdd property and it has been less than 5 minutes since the last request, don't process the request
+        console.log(req.session.user.lastListBulkAdd - rightNow < 30000);
+        if (req.session.user.lastListBulkAdd && req.session.user.lastListBulkAdd - rightNow < 30000) {
+            return res.status(429).send("Recent request already processed");
+        }
+        // add last list items bulk add property to user session
+        req.session.user = {
+            id: req.session.user.id,
+            email: req.session.user.email,
+            user_auth: req.session.user.user_auth,
+            lastListBulkAdd: rightNow
+        };
         const user_id = req.session.user.id;
         // expecting an array for items
-        const newItems = JSON.parse(req.body.items);
+        const newItems = req.body.items;
         // check first item for list id
         // since this will be the first item added while offline, if it has a list id, the rest will use that id
         // will update this value if a new list needs to be created
         let existingListID = newItems[0].list_id;
-        // if list id doesn't exist
-        if (!existingListID && typeof (existingListID) !== "number") {
+        // if list id doesn't exist or the id isn't a number
+        if (!existingListID || typeof (existingListID) !== "number") {
             // check if a list does actually currently exist
             sqlDB
-                .query(`SELECT * FROM ${listTable} WHERE user_id = ${user_id} AND lists.completed = false;`,
+                .query(`SELECT * FROM ${listTable} WHERE user_id = '${user_id}' AND lists.completed = false;`,
                     function (err, results) {
                         if (err) {
                             return res.status(500).send(err);
                         } else {
-                            if (results.length < 1) {
+                            if (results.length < 1 || results[0].completed > 0) {
                                 // if it doesn't create new list
-                                createList();
-                            }
-                            // if it doesn't create new list
-                            if (results.completed > 0 || results.length < 1) {
                                 createList();
                             } else {
                                 // if it does, update existing list id
                                 existingListID = results[0].id;
+                                addItems();
                             }
                         }
                     });
@@ -419,6 +429,7 @@ module.exports = {
             addItems();
         }
         function createList() {
+            console.log("time to create a list");
             const columns = "(date_added, user_id)"
             sqlDB
                 .query(`INSERT INTO ${listTable} ${columns} VALUES (NOW(), ${user_id});`,
@@ -426,6 +437,7 @@ module.exports = {
                         if (err) {
                             return res.status(422).send(err);
                         } else {
+                            console.log("new list created");
                             // update list id to newly created list id
                             existingListID = result.insertId;
                             addItems();
@@ -455,7 +467,7 @@ module.exports = {
                     } else {
                         return res.status(201).json(results);
                     }
-                })
+                });
         }
     }
 }

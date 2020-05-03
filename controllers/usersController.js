@@ -348,13 +348,13 @@ module.exports = {
                         if (err) {
                             return res.status(500).send(err);
                         } else {
-                            checkPWA(results);
                             // set user info to session object
                             req.session.user = {
                                 id: results[0].id,
                                 email: results[0].email,
                                 user_auth: results[0].user_auth
                             };
+                            checkPWA(results);
                             return res.status(200).json(results);
                         }
                     });
@@ -363,6 +363,11 @@ module.exports = {
     verifyUser: function (req, res) {
         const token = sqlDB.escape(req.params.token);
         const ip = req.params.ip;
+        console.log("--------")
+        console.log("--------")
+        console.log(req.session.user);
+        console.log("--------")
+        console.log("--------")
         sqlDB
             .query(`CALL verify_user(${token});`,
                 function (err, results) {
@@ -394,7 +399,7 @@ module.exports = {
                                                 req.session.user = {
                                                     id: results[0][0].id,
                                                     email: results[0][0].email,
-                                                    user_auth: results[0][0].user_auth
+                                                    user_auth: token
                                                 };
                                                 return res.status(200).json(data);
                                             }
