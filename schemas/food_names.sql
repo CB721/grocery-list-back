@@ -33,3 +33,7 @@ INSERT INTO food_names (name) VALUES
 ("biscotti"), ("ramen"), ("ramen noodles"), ("chowder"), ("oatmeal"), ("papaya"), ("prunes"), ("clam"), ("capicola"), ("chorizo"), ("jerky"), ("dumplings"),
 ("kombucha"), ("salad"), ("stew"), ("rice vinegar"), ("sangria"), ("white wine"), ("red wine"), ("corn starch"), ("chicken broth"), ("lamb"), ("hash browns"), ("pita bread"),
 ("roma sauce"), ("pad thai"), ("apple sauce"), ("pie crust"), ("potato chips"), ("sweet potatoes"), ("soda"), ("swordfish"), ("crawfish"), ("energy drink"), ("cool whip"), ("hot chocolate"), ("rosemary");
+
+CREATE PROCEDURE search_food_names(IN search VARCHAR(255))
+SELECT name FROM food_names WHERE name LIKE search;
+CALL search_food_names("%bread%");

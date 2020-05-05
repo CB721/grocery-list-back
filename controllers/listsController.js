@@ -335,13 +335,31 @@ module.exports = {
                     if (err) {
                         return res.status(500).json(err);
                     } else {
-                        searchedAll = true;
+                        wordSuggest = true;
                         filterDuplicates(results[0]);
                     }
                 });
         }
+        function searchFoodNames() {
+            // remove and replace asteriks with percentage symbol for LIKE clause
+            // remove quote around search term
+            let foodNameSearch = search.split("*").join("").split("'").join("");
+            foodNameSearch = sqlDB.escape(`%${foodNameSearch}%`);
+            // search all pre-saved food names
+            sqlDB.query(`CALL search_food_names(${foodNameSearch});`,
+            function(err, results) {
+                if (err) {
+                    return res.status(500).json(err);
+                } else {
+                    searchedAll = true;
+                    filterDuplicates(results[0]);
+                }
+            })
+        }
         // set boolean to determine if all items have been searched yet
         let searchedAll = false;
+        // set boolean to determine if the food names have been searched yet
+        let foodNames = false;
         function filterDuplicates(items) {
             for (let i = 0; i < items.length; i++) {
                 // lowercase name value
@@ -351,8 +369,11 @@ module.exports = {
                     suggestions.push(name);
                 }
             }
-            // if the suggestions are less than 5 and all items haven't been searched yet
-            if (suggestions.length < 5 && !searchedAll) {
+            // if the suggestions are less than 5 and all items haven't been searched yet and the food names have not been searched
+            if (suggestions.length < 5 && !searchedAll && !foodNames) {
+                searchFoodNames();
+                // if the suggestions are less than 5 and all items haven't been searched yet and the food names have been searched
+            } else if (suggestions.length < 5 && !searchedAll && foodNames) {
                 searchAllItems();
                 // if the suggestions are still less than 5 after search all items
                 // send request to datamuse api
@@ -377,6 +398,8 @@ module.exports = {
                         return res.status(200).json(outputArr);
                     })
                     .catch(err => res.status(500).json(err));
+            } else {
+                return res.status(200).json(suggestions);
             }
         }
     },
