@@ -118,7 +118,7 @@ module.exports = function (email, password) {
                 <div class="invite-message" style="height: auto;text-align: center;padding: 2%;line-height: 16px;color: #2F3338;">
                 Here is your new password: ${password}
                 </div>
-                <a href="#" class="invite-button" style="height: 32px;line-height: 32px;font-size: 16px;display: block;width: 50%;text-align: center;border-radius: 8px;margin: 0 auto;color: #F9FCFF;background: #3C91E6;text-transform: capitalize;text-decoration: none;transition: 0.3s;">
+                <a href="https://g-list-cb.herokuapp.com/reset" class="invite-button" style="height: 32px;line-height: 32px;font-size: 16px;display: block;width: 50%;text-align: center;border-radius: 8px;margin: 0 auto;color: #F9FCFF;background: #3C91E6;text-transform: capitalize;text-decoration: none;transition: 0.3s;">
                     Reset
                 </a>
                 <div class="invite-message" style="height: auto;text-align: center;padding: 2%;line-height: 16px;color: #2F3338;">

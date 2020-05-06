@@ -12,5 +12,5 @@ describe("Server", () => {
         mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         mongoose.set('useFindAndModify', false);
         expect(mongoose.connections[0].states.connected).toEqual(1);
-    })
+    });
 });
