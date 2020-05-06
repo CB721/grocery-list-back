@@ -11,7 +11,7 @@ const db = require("./models");
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 app.use(cors({
-  origin: ["https://g-list-cb.herokuapp.com"],
+  origin: ["https://g-list-cb.herokuapp.com", "http://www.groclist.com", "http://localhost:3000"],
   credentials: true
 }));
 app.use(session(
