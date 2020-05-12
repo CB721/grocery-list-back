@@ -19,6 +19,7 @@ router
     .delete(controller.deleteList);
 router
     .route("/user/full/all")
+    .get(controller.search_list_names)
     .post(controller.getListsByUserID);
 router
     .route("/user/info/update")

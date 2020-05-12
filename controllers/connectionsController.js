@@ -352,6 +352,6 @@ module.exports = {
                     } else if (results.affectedRows === 1) {
                         return res.status(200).send("Connection request cancelled");
                     }
-                })
+                });
     }
 }

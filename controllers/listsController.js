@@ -492,5 +492,26 @@ module.exports = {
                     }
                 });
         }
+    },
+    search_list_names: function(req, res) {
+        // if there isn't a user in the session, return error
+        if (!req.session.user) {
+            return res.status(401).send("Log in to continue");
+        }
+        // prevent injections
+        const search = sqlDB.escape(`%${req.query.search}%`);
+        // get user_id from session
+        const userID = sqlDB.escape(req.session.user.id);
+        // query the db
+        sqlDB.query(`CALL get_lists_by_name(${userID}, ${search})`,
+        function(err, results) {
+            if (err) {
+                return res.status(500).json(err);
+            } if (results[0].length) {
+                return res.status(200).json(results[0]);
+            } else {
+                return res.status(204).send("No results found");
+            }
+        })
     }
 }
