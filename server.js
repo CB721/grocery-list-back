@@ -10,8 +10,16 @@ const app = express();
 const db = require("./models");
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
+const whitelist = [];
+if (process.env.api_url) {
+  whitelist.push(process.env.api_url);
+  console.log("api url added to whitelist\n");
+} else {
+  whitelist.push("http://localhost:3000");
+  console.log("api url not found\n");
+}
 app.use(cors({
-  origin: ["https://g-list-cb.herokuapp.com"],
+  origin: whitelist,
   credentials: true
 }));
 app.use(session(

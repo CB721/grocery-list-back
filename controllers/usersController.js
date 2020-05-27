@@ -363,11 +363,6 @@ module.exports = {
     verifyUser: function (req, res) {
         const token = sqlDB.escape(req.params.token);
         const ip = req.params.ip;
-        console.log("--------")
-        console.log("--------")
-        console.log(req.session.user);
-        console.log("--------")
-        console.log("--------")
         sqlDB
             .query(`CALL verify_user(${token});`,
                 function (err, results) {

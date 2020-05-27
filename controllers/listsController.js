@@ -148,7 +148,8 @@ module.exports = {
             .query(`SELECT * FROM lists WHERE user_id = ${ID} and completed = ${completed} ORDER BY date_added ${direction};`,
                 function (err, results) {
                     if (err) {
-                        return res.status(422).send(err);
+                        console.log(err);
+                        return res.status(500).json(err);
                     } else {
                         return res.status(200).json(results);
                     }
@@ -410,7 +411,6 @@ module.exports = {
         }
         const rightNow = Date.now();
         // if there is lastListBulkAdd property and it has been less than 5 minutes since the last request, don't process the request
-        console.log(req.session.user.lastListBulkAdd - rightNow < 30000);
         if (req.session.user.lastListBulkAdd && req.session.user.lastListBulkAdd - rightNow < 30000) {
             return res.status(429).send("Recent request already processed");
         }
@@ -452,7 +452,6 @@ module.exports = {
             addItems();
         }
         function createList() {
-            console.log("time to create a list");
             const columns = "(date_added, user_id)"
             sqlDB
                 .query(`INSERT INTO ${listTable} ${columns} VALUES (NOW(), ${user_id});`,
@@ -460,7 +459,6 @@ module.exports = {
                         if (err) {
                             return res.status(422).send(err);
                         } else {
-                            console.log("new list created");
                             // update list id to newly created list id
                             existingListID = result.insertId;
                             addItems();
