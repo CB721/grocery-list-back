@@ -5,11 +5,13 @@ An application for users to create custom grocery lists based on the stores wher
 * [Front End Repository](https://github.com/CB721/grocery-list-front)
 * [Back End Repository](https://github.com/CB721/grocery-list-back)
 
+![profile](https://github.com/CB721/grocery-list-front/blob/master/assets/wireframes:mockups/g-list-profile.png?raw=true)
+
 ## Versions
 * 1.2.5
     * Home page redesign
         * Created custom svgs to demonstrate the application
-        * Condensed text by 50%
+        * Reduced text by 50%
     * Option to filter current list items by their in-cart status
     * Reduced the length of time toast notifications remain on-screen for mobile devices
 * 1.2.0
@@ -47,18 +49,21 @@ An application for users to create custom grocery lists based on the stores wher
 
 ## User Stores
 1) "As a user, I want to create grocery lists and specify where I'll buy and how urgently I need each item."
-2) "As a user, I want to filter by store when I go shopping"
-3) "As a user, I want to connect with friends and family members to send and receive grocery lists"
+2) "As a user, I want to filter by store when I go shopping."
+3) "As a user, I want to connect with friends and family members to send and receive grocery lists."
 
 ## Table Relationships
-![entity relationship diagram](https://github.com/CB721/grocery-list-front/blob/master/assets/wireframes/ERD.png?raw=true)
+![entity relationship diagram](https://github.com/CB721/grocery-list-front/blob/master/assets/wireframes:mockups/ERD.png?raw=true)
+
+#### Dark Mode
+![dark mode](https://github.com/CB721/grocery-list-front/blob/master/assets/wireframes:mockups/g-list-dark-mode.png?raw=true)
 
 ### Future Improvements
 * Implement swipe feature for mobile
     * Swipe right on a item to mark it complete, swipe left to delete it
     * Swipe across tabs for viewing stores, viewing lists and creating lists
-* Create autocomplete feature for list items - query the db for similarly spelled items, create a list for foods to populate as well
-* Add parallax effect to home page
+* Add scan barcode option for a user to add to their list
+* Allow users to share a list, update the purchased status and mark as completed in real time
 
 ### Technologies Used
 #### Front End
