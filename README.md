@@ -6,6 +6,12 @@ An application for users to create custom grocery lists based on the stores wher
 * [Back End Repository](https://github.com/CB721/grocery-list-back)
 
 ## Versions
+* 1.2.5
+    * Home page redesign
+        * Created custom svgs to demonstrate the application
+        * Condensed text by 50%
+    * Option to filter current list items by their in-cart status
+    * Reduced the length of time toast notifications remain on-screen for mobile devices
 * 1.2.0
     * Dark mode option saved in database
     * Navbar options placed on footer for mobile
@@ -43,6 +49,9 @@ An application for users to create custom grocery lists based on the stores wher
 1) "As a user, I want to create grocery lists and specify where I'll buy and how urgently I need each item."
 2) "As a user, I want to filter by store when I go shopping"
 3) "As a user, I want to connect with friends and family members to send and receive grocery lists"
+
+## Table Relationships
+![entity relationship diagram](https://github.com/CB721/grocery-list-front/blob/master/assets/wireframes/ERD.png?raw=true)
 
 ### Future Improvements
 * Implement swipe feature for mobile
