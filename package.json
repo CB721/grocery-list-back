@@ -25,7 +25,7 @@
   "homepage": "https://github.com/CB721/grocery-list-back#readme",
   "dependencies": {
     "axios": "^0.19.2",
-    "bcrypt": "^3.0.7",
+    "bcrypt": "^5.0.0",
     "bcryptjs": "^2.4.3",
     "concurrently": "^4.1.0",
     "connect-session-sequelize": "^6.1.1",
